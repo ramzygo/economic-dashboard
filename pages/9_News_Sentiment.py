@@ -3,6 +3,7 @@ News & Sentiment Analysis Dashboard
 Visualize news sentiment for stocks using data from news sources and Google Trends.
 """
 
+import re
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -219,7 +220,11 @@ if analyze_button or 'analyzed_data' in st.session_state:
     # Update symbol if changed from quick access
     if 'symbol' in st.session_state:
         symbol = st.session_state['symbol']
-    
+
+    if not re.match(r'^[A-Z]{1,5}(\.[A-Z]{1,2})?$', symbol):
+        st.error("Invalid ticker symbol. Use 1–5 uppercase letters (e.g. AAPL, BRK.B).")
+        st.stop()
+
     with st.spinner(f'Analyzing sentiment for {symbol}...'):
         try:
             # Fetch news

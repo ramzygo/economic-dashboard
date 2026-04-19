@@ -12,37 +12,65 @@ from pathlib import Path
 
 class CredentialsManager:
     """Manage API keys and credentials securely"""
-    
+
+    # Key file lives one level above the credentials data directory so that
+    # a directory-listing leak of data/credentials/ does not expose both the
+    # key and the ciphertext at once.
+    _KEY_SUBDIR = '.credentials_key'
+
     def __init__(self, credentials_dir: str = 'data/credentials'):
         """
         Initialize credentials manager.
-        
+
+        The encryption key is resolved in priority order:
+          1. CREDENTIALS_KEY environment variable (base64-encoded Fernet key)
+          2. Key file at <parent_of_credentials_dir>/.credentials_key
+          3. Legacy key file at <credentials_dir>/.key  (backward-compat)
+
         Args:
             credentials_dir: Directory to store encrypted credentials
         """
         self.credentials_dir = Path(credentials_dir)
         self.credentials_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Initialize or load encryption key
-        self.key_file = self.credentials_dir / '.key'
+
+        self._key_file = self.credentials_dir.parent / self._KEY_SUBDIR
+        # Expose for inspection/testing (legacy path kept for compat check)
+        self.key_file = self._key_file
+
         self.cipher = self._init_encryption()
-        
+
         # Credentials file
         self.creds_file = self.credentials_dir / 'credentials.enc'
-    
+
     def _init_encryption(self) -> Fernet:
-        """Initialize encryption cipher with key"""
-        if self.key_file.exists():
-            with open(self.key_file, 'rb') as f:
+        """Initialize encryption cipher with key, preferring env var over file."""
+        env_key = os.environ.get('CREDENTIALS_KEY', '').strip()
+        if env_key:
+            return Fernet(env_key.encode())
+
+        # Out-of-band key file (parent directory)
+        if self._key_file.exists():
+            with open(self._key_file, 'rb') as f:
                 key = f.read()
-        else:
-            # Generate new encryption key
-            key = Fernet.generate_key()
-            with open(self.key_file, 'wb') as f:
+            return Fernet(key)
+
+        # Backward-compat: migrate legacy key from inside credentials dir
+        legacy_key_file = self.credentials_dir / '.key'
+        if legacy_key_file.exists():
+            with open(legacy_key_file, 'rb') as f:
+                key = f.read()
+            # Move key out of the data directory
+            with open(self._key_file, 'wb') as f:
                 f.write(key)
-            # Secure the key file
-            os.chmod(self.key_file, 0o600)
-        
+            os.chmod(self._key_file, 0o600)
+            legacy_key_file.unlink()
+            return Fernet(key)
+
+        # Generate a new key in the out-of-band location
+        key = Fernet.generate_key()
+        with open(self._key_file, 'wb') as f:
+            f.write(key)
+        os.chmod(self._key_file, 0o600)
         return Fernet(key)
     
     def _load_credentials(self) -> Dict[str, str]:

@@ -12,6 +12,7 @@ Features:
 - Predictive analytics
 """
 
+import re
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -122,6 +123,10 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # Initialize tracker
 if not ticker:
     st.info("👈 Enter a ticker symbol in the sidebar to get started")
+    st.stop()
+
+if not re.match(r'^[A-Z]{1,5}(\.[A-Z]{1,2})?$', ticker):
+    st.error("Invalid ticker symbol. Use 1–5 uppercase letters (e.g. AAPL, BRK.B).")
     st.stop()
 
 tracker = InsiderTradingTracker()

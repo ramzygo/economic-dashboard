@@ -3,6 +3,7 @@ Financial Health Scorer Dashboard
 Analyze company financial health using Piotroski F-Score and Altman Z-Score
 """
 
+import re
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
@@ -99,6 +100,10 @@ with st.sidebar:
 
 # Main content
 if ticker_input:
+    if not re.match(r'^[A-Z]{1,5}(\.[A-Z]{1,2})?$', ticker_input):
+        st.error("Invalid ticker symbol. Use 1–5 uppercase letters (e.g. AAPL, BRK.B).")
+        st.stop()
+
     st.header(f"Financial Health Analysis: {ticker_input}")
     
     # CIK lookup
