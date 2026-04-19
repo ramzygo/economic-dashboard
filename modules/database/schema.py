@@ -677,87 +677,92 @@ def create_google_trends_table():
     db.execute("CREATE INDEX IF NOT EXISTS idx_trends_date ON google_trends(date)")
 
 
-def create_all_tables():
+def create_all_tables(verbose: bool = True):
     """Create all database tables"""
-    print("Creating database schema...")
-    
+    def log(msg):
+        if verbose:
+            print(msg)
+
+    log("Creating database schema...")
+
     create_fred_data_table()
-    print("✓ Created fred_data table")
-    
+    log("✓ Created fred_data table")
+
     create_yfinance_ohlcv_table()
-    print("✓ Created yfinance_ohlcv table")
-    
+    log("✓ Created yfinance_ohlcv table")
+
     create_options_data_table()
-    print("✓ Created options_data table")
-    
+    log("✓ Created options_data table")
+
     create_market_indicators_table()
-    print("✓ Created market_indicators table")
-    
+    log("✓ Created market_indicators table")
+
     create_technical_features_table()
-    print("✓ Created technical_features table")
-    
+    log("✓ Created technical_features table")
+
     create_derived_features_table()
-    print("✓ Created derived_features table")
-    
+    log("✓ Created derived_features table")
+
     create_ml_training_data_table()
-    print("✓ Created ml_training_data table")
-    
+    log("✓ Created ml_training_data table")
+
     create_ml_predictions_table()
-    print("✓ Created ml_predictions table")
-    
+    log("✓ Created ml_predictions table")
+
     create_model_performance_table()
-    print("✓ Created model_performance table")
-    
+    log("✓ Created model_performance table")
+
     create_data_refresh_log_table()
-    print("✓ Created data_refresh_log table")
-    
+    log("✓ Created data_refresh_log table")
+
     create_data_retention_policy_table()
-    print("✓ Created data_retention_policy table")
-    
+    log("✓ Created data_retention_policy table")
+
     create_feature_drift_table()
-    print("✓ Created feature_drift table")
-    
+    log("✓ Created feature_drift table")
+
     # Margin Call Risk Tables
     create_leverage_metrics_table()
-    print("✓ Created leverage_metrics table")
-    
+    log("✓ Created leverage_metrics table")
+
     create_vix_term_structure_table()
-    print("✓ Created vix_term_structure table")
-    
+    log("✓ Created vix_term_structure table")
+
     create_leveraged_etf_data_table()
-    print("✓ Created leveraged_etf_data table")
-    
+    log("✓ Created leveraged_etf_data table")
+
     create_margin_call_risk_table()
-    print("✓ Created margin_call_risk table")
-    
+    log("✓ Created margin_call_risk table")
+
     # SEC Data Tables
     create_sec_submissions_table()
-    print("✓ Created sec_submissions table")
-    
+    log("✓ Created sec_submissions table")
+
     create_sec_financial_statements_table()
-    print("✓ Created sec_financial_statements table")
-    
+    log("✓ Created sec_financial_statements table")
+
     create_sec_company_facts_table()
-    print("✓ Created sec_company_facts table")
-    
+    log("✓ Created sec_company_facts table")
+
     create_sec_filings_table()
-    print("✓ Created sec_filings table")
-    
+    log("✓ Created sec_filings table")
+
     create_sec_fails_to_deliver_table()
-    print("✓ Created sec_fails_to_deliver table")
-    
+    log("✓ Created sec_fails_to_deliver table")
+
     create_sec_13f_holdings_table()
-    print("✓ Created sec_13f_holdings table")
+    log("✓ Created sec_13f_holdings table")
+
     create_news_sentiment_table()
-    print("✓ Created news_sentiment table")
-    
+    log("✓ Created news_sentiment table")
+
     create_sentiment_summary_table()
-    print("✓ Created sentiment_summary table")
-    
+    log("✓ Created sentiment_summary table")
+
     create_google_trends_table()
-    print("✓ Created google_trends table")
-    
-    print("\nDatabase schema created successfully!")
+    log("✓ Created google_trends table")
+
+    log("\nDatabase schema created successfully!")
 
 
 def drop_all_tables():
