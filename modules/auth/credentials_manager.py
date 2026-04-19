@@ -1,6 +1,7 @@
 """
 Secure credentials management for API keys and authentication tokens.
 Provides encrypted storage and retrieval of sensitive credentials.
+Falls back to st.secrets when running on Streamlit Community Cloud.
 """
 
 import os
@@ -8,6 +9,25 @@ import json
 from typing import Optional, Dict
 from cryptography.fernet import Fernet
 from pathlib import Path
+
+# Streamlit secrets key names map service names to st.secrets keys
+_STREAMLIT_SECRETS_KEYS = {
+    'fred': 'FRED_API_KEY',
+    'yahoo_finance': 'YAHOO_FINANCE_API_KEY',
+    'alpha_vantage': 'ALPHA_VANTAGE_API_KEY',
+    'quandl': 'QUANDL_API_KEY',
+    'world_bank': 'WORLD_BANK_API_KEY',
+}
+
+
+def _get_from_streamlit_secrets(service: str) -> Optional[str]:
+    """Return API key from st.secrets if available, else None."""
+    try:
+        import streamlit as st
+        key_name = _STREAMLIT_SECRETS_KEYS.get(service, service.upper() + '_API_KEY')
+        return st.secrets.get(key_name)
+    except Exception:
+        return None
 
 
 class CredentialsManager:
@@ -117,15 +137,15 @@ class CredentialsManager:
     def get_api_key(self, service: str) -> Optional[str]:
         """
         Retrieve an API key.
-        
+
         Args:
             service: Name of the service
-            
+
         Returns:
             API key if found, None otherwise
         """
         credentials = self._load_credentials()
-        return credentials.get(service)
+        return credentials.get(service) or _get_from_streamlit_secrets(service)
     
     def delete_api_key(self, service: str) -> bool:
         """
@@ -151,7 +171,7 @@ class CredentialsManager:
     
     def has_api_key(self, service: str) -> bool:
         """Check if API key exists for service"""
-        return service in self._load_credentials()
+        return bool(self.get_api_key(service))
 
 
 # Global instance for easy access
