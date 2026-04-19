@@ -22,7 +22,7 @@ DATA_SOURCES = {
     'fred': {
         'online': True,
         'offline_file': 'data/sample_fred_data.csv',
-        'cache_file': f'{CACHE_DIR}/fred_cache.pkl'
+        'cache_file': f'{CACHE_DIR}/fred_cache'
     },
     'yfinance': {
         'online': True,
@@ -32,7 +32,7 @@ DATA_SOURCES = {
     'world_bank': {
         'online': True,
         'offline_file': 'data/sample_world_bank_gdp.csv',
-        'cache_file': f'{CACHE_DIR}/world_bank_cache.pkl'
+        'cache_file': f'{CACHE_DIR}/world_bank_cache'
     }
 }
 

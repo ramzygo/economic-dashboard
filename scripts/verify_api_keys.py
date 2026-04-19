@@ -64,23 +64,15 @@ def verify_implementation():
     # Test 4: FRED API key
     print("\n[4/8] Checking FRED API key...")
     try:
-        expected_fred_key = "b077ecbf05fa5f0a6407b38e22552c4e"
-        
-        # Try to retrieve existing key
         fred_key = creds.get_api_key('fred')
-        
-        if fred_key == expected_fred_key:
-            print("✅ FRED API key is configured correctly")
-            print(f"   Key preview: {fred_key[:10]}...{fred_key[-10:]}")
+
+        if fred_key:
+            print("✅ FRED API key is configured")
+            print(f"   Key preview: {fred_key[:4]}...{fred_key[-4:]}")
             results.append(True)
-        elif fred_key is None:
+        else:
             print("⚠️  FRED API key not configured yet")
             print("   Run: python quickstart_api_keys.py")
-            results.append(False)
-        else:
-            print("⚠️  FRED API key found but doesn't match expected value")
-            print(f"   Current: {fred_key[:10]}...{fred_key[-10:]}")
-            print(f"   Expected: {expected_fred_key[:10]}...{expected_fred_key[-10:]}")
             results.append(False)
     except Exception as e:
         print(f"❌ FRED key check failed: {e}")
