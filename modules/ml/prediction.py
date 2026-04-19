@@ -13,6 +13,7 @@ from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
 import logging
 import pickle
+import re
 
 from .models import BaseModel, XGBoostModel, LightGBMModel, EnsembleModel
 
@@ -63,8 +64,13 @@ class PredictionEngine:
             return self.loaded_models[cache_key]
         
         logger.info(f"Loading model from {model_path}")
-        
-        with open(model_path, 'rb') as f:
+
+        # Ensure the path resolves inside the expected models directory
+        resolved = Path(model_path).resolve()
+        if not str(resolved).startswith(str(self.models_dir.resolve())):
+            raise ValueError(f"Model path outside allowed directory: {model_path}")
+
+        with open(resolved, 'rb') as f:
             model = pickle.load(f)
         
         if cache_key:
@@ -412,26 +418,26 @@ class PredictionEngine:
             DataFrame with historical predictions
         """
         conn = duckdb.connect(self.db_path, read_only=True)
-        
+
         try:
-            query = f"""
-            SELECT *
-            FROM ml_predictions
-            WHERE ticker = '{ticker}'
-            """
-            
+            params: list = [ticker]
+            query = "SELECT * FROM ml_predictions WHERE ticker = ?"
+
             if start_date:
-                query += f" AND date >= '{start_date}'"
+                query += " AND date >= ?"
+                params.append(start_date)
             if end_date:
-                query += f" AND date <= '{end_date}'"
+                query += " AND date <= ?"
+                params.append(end_date)
             if prediction_type:
-                query += f" AND prediction_type = '{prediction_type}'"
-            
+                query += " AND prediction_type = ?"
+                params.append(prediction_type)
+
             query += " ORDER BY date DESC"
-            
-            df = conn.execute(query).df()
-            
+
+            df = conn.execute(query, params).df()
+
             return df
-            
+
         finally:
             conn.close()

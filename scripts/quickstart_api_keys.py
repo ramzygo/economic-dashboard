@@ -27,13 +27,16 @@ def main():
     # Step 2: Store FRED API key
     print("\n🔑 Step 2: Storing FRED API key...")
     try:
-        fred_key = "b077ecbf05fa5f0a6407b38e22552c4e"
+        fred_key = os.environ.get('FRED_API_KEY') or input("Enter your FRED API key: ").strip()
+        if not fred_key:
+            print("❌ No FRED API key provided. Get one at https://fred.stlouisfed.org/docs/api/api_key.html")
+            return 1
         creds_manager.set_api_key('fred', fred_key)
         print("✅ FRED API key stored securely")
     except Exception as e:
         print(f"❌ Error storing API key: {e}")
         return 1
-    
+
     # Step 3: Verify storage
     print("\n✓ Step 3: Verifying API key storage...")
     try:

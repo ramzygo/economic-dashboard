@@ -21,7 +21,10 @@ def initialize_credentials():
     
     # FRED API Key
     print("\nSetting up FRED API key...")
-    fred_key = "b077ecbf05fa5f0a6407b38e22552c4e"
+    fred_key = os.environ.get('FRED_API_KEY') or input("Enter your FRED API key: ").strip()
+    if not fred_key:
+        print("❌ No FRED API key provided. Get one at https://fred.stlouisfed.org/docs/api/api_key.html")
+        return
     creds_manager.set_api_key('fred', fred_key)
     print("✅ FRED API key stored securely")
     

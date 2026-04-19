@@ -8,8 +8,8 @@ import pandas as pd
 import yfinance as yf
 from pandas_datareader import data as pdr
 from datetime import datetime, timedelta
+import json
 import os
-import pickle
 import time
 from typing import Optional
 from config_settings import (
@@ -58,43 +58,52 @@ def _setup_proxy():
 _PROXY_ENABLED = _setup_proxy()
 
 
+def _cache_meta_path(cache_file: str) -> str:
+    return cache_file + '.meta.json'
+
+
+def _cache_data_path(cache_file: str) -> str:
+    return cache_file + '.parquet'
+
+
 def _load_cached_data(cache_file: str, max_age_hours: int | None = None) -> pd.DataFrame | dict | None:
-    """Load data from cache if it exists and is not expired.
-    
-    Args:
-        cache_file: Path to cache file
-        max_age_hours: Maximum age in hours before cache is considered stale.
-                      If None, uses CACHE_EXPIRY_HOURS
-    """
-    if not os.path.exists(cache_file):
+    """Load data from cache if it exists and is not expired."""
+    meta_path = _cache_meta_path(cache_file)
+    if not os.path.exists(meta_path):
         return None
 
     try:
-        with open(cache_file, 'rb') as f:
-            cache_data = pickle.load(f)
+        with open(meta_path, 'r') as f:
+            meta = json.load(f)
 
-        # Check if cache is expired
-        cache_time = cache_data['timestamp']
+        cache_time = datetime.fromisoformat(meta['timestamp'])
         expiry_hours = max_age_hours if max_age_hours is not None else CACHE_EXPIRY_HOURS
         if datetime.now() - cache_time > timedelta(hours=expiry_hours):
             return None
 
-        return cache_data['data']
+        data_path = _cache_data_path(cache_file)
+        if meta.get('type') == 'dataframe' and os.path.exists(data_path):
+            return pd.read_parquet(data_path)
+        elif meta.get('type') == 'json':
+            return meta.get('data')
     except Exception:
         return None
 
+    return None
+
 
 def _save_cached_data(cache_file: str, data):
-    """Save data to cache."""
+    """Save data to cache using JSON metadata + parquet for DataFrames."""
     ensure_cache_dir()
-    cache_data = {
-        'timestamp': datetime.now(),
-        'data': data
-    }
-
     try:
-        with open(cache_file, 'wb') as f:
-            pickle.dump(cache_data, f)
+        meta_path = _cache_meta_path(cache_file)
+        if isinstance(data, pd.DataFrame):
+            data.to_parquet(_cache_data_path(cache_file))
+            meta = {'timestamp': datetime.now().isoformat(), 'type': 'dataframe'}
+        else:
+            meta = {'timestamp': datetime.now().isoformat(), 'type': 'json', 'data': data}
+        with open(meta_path, 'w') as f:
+            json.dump(meta, f, default=str)
     except Exception as e:
         st.warning(f"Could not save cache: {e}")
 

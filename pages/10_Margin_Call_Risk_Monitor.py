@@ -3,6 +3,7 @@ Margin Call Risk Monitor Dashboard
 Real-time monitoring of margin call risk across stocks and market-wide stress indicators.
 """
 
+import re
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -485,6 +486,12 @@ with tab3:
     )
     
     if ticker_for_history:
+        ticker_for_history = ticker_for_history.upper().strip()
+        if not re.match(r'^[A-Z]{1,5}(\.[A-Z]{1,2})?$', ticker_for_history):
+            st.error("Invalid ticker symbol. Use 1–5 uppercase letters (e.g. AAPL, BRK.B).")
+            ticker_for_history = None
+
+    if ticker_for_history:
         try:
             history_query = f"""
                 SELECT * FROM margin_call_risk
@@ -492,7 +499,7 @@ with tab3:
                 AND date >= DATE('now', '-{days_back} days')
                 ORDER BY date
             """
-            history_data = db.query(history_query, (ticker_for_history.upper(),))
+            history_data = db.query(history_query, (ticker_for_history,))
         except Exception:
             history_data = pd.DataFrame()
         

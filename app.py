@@ -188,7 +188,7 @@ with col1:
             )
         else:
             st.metric(label="Real GDP Growth", value="N/A")
-    except:
+    except Exception:
         st.metric(label="Real GDP Growth", value="N/A")
 
 with col2:
@@ -203,7 +203,7 @@ with col2:
             )
         else:
             st.metric(label="Unemployment Rate", value="N/A")
-    except:
+    except Exception:
         st.metric(label="Unemployment Rate", value="N/A")
 
 with col3:
@@ -218,7 +218,7 @@ with col3:
             )
         else:
             st.metric(label="Inflation (CPI)", value="N/A")
-    except:
+    except Exception:
         st.metric(label="Inflation (CPI)", value="N/A")
 
 with col4:
@@ -232,7 +232,7 @@ with col4:
             )
         else:
             st.metric(label="Fed Funds Rate", value="N/A")
-    except:
+    except Exception:
         st.metric(label="Fed Funds Rate", value="N/A")
 
 st.divider()
@@ -252,7 +252,7 @@ with col1:
             )
         else:
             st.metric(label="Total Nonfarm Payrolls", value="N/A")
-    except:
+    except Exception:
         st.metric(label="Total Nonfarm Payrolls", value="N/A")
 
 with col2:
@@ -266,7 +266,7 @@ with col2:
             )
         else:
             st.metric(label="Avg Hourly Earnings", value="N/A")
-    except:
+    except Exception:
         st.metric(label="Avg Hourly Earnings", value="N/A")
 
 with col3:
@@ -280,7 +280,7 @@ with col3:
             )
         else:
             st.metric(label="Labor Force Participation", value="N/A")
-    except:
+    except Exception:
         st.metric(label="Labor Force Participation", value="N/A")
 
 with col4:
@@ -294,7 +294,7 @@ with col4:
             )
         else:
             st.metric(label="Initial Jobless Claims", value="N/A")
-    except:
+    except Exception:
         st.metric(label="Initial Jobless Claims", value="N/A")
 
 st.divider()
@@ -314,7 +314,7 @@ with col1:
             )
         else:
             st.metric(label="Personal Consumption", value="N/A")
-    except:
+    except Exception:
         st.metric(label="Personal Consumption", value="N/A")
 
 with col2:
@@ -328,7 +328,7 @@ with col2:
             )
         else:
             st.metric(label="Personal Saving Rate", value="N/A")
-    except:
+    except Exception:
         st.metric(label="Personal Saving Rate", value="N/A")
 
 with col3:
@@ -342,7 +342,7 @@ with col3:
             )
         else:
             st.metric(label="Housing Starts", value="N/A")
-    except:
+    except Exception:
         st.metric(label="Housing Starts", value="N/A")
 
 with col4:
@@ -356,7 +356,7 @@ with col4:
             )
         else:
             st.metric(label="30-Year Mortgage Rate", value="N/A")
-    except:
+    except Exception:
         st.metric(label="30-Year Mortgage Rate", value="N/A")
 
 st.divider()
