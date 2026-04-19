@@ -36,11 +36,15 @@ class DatabaseConnection:
         temp_dir.mkdir(parents=True, exist_ok=True)
         
         self._connection = duckdb.connect(str(db_path))
-        
+
         # Configure DuckDB for optimal performance
         self._connection.execute("SET threads=4")
         self._connection.execute("SET memory_limit='2GB'")
         self._connection.execute(f"SET temp_directory='{temp_dir}'")
+
+        # Auto-initialize schema on every new connection so tables always exist
+        from .schema import create_all_tables
+        create_all_tables(verbose=False)
         
         # Note: DuckDB automatically optimizes queries and uses compression
         # Additional optimizations are applied at export time via COPY TO PARQUET
